@@ -1,4 +1,5 @@
 import { buildSystemPrompt, getPersona } from "@/lib/personas";
+import { DEFAULT_LEVELS, getLevel } from "@/lib/levels";
 import { CHAT_MODEL, friendlyApiError, getXaiClient } from "@/lib/xai";
 
 export const runtime = "nodejs";
@@ -16,14 +17,16 @@ export async function POST(req: Request) {
       messages = [],
       personaId = "nova",
       customDescription = "",
-      intensity = "unfiltered",
+      levelId = "3",
+      levelRules = "",
       scenario = "",
       userName = "",
     } = body as {
       messages: IncomingMessage[];
       personaId?: string;
       customDescription?: string;
-      intensity?: string;
+      levelId?: string;
+      levelRules?: string;
       scenario?: string;
       userName?: string;
     };
@@ -32,16 +35,7 @@ export async function POST(req: Request) {
       return Response.json({ error: "messages required" }, { status: 400 });
     }
 
-    // Hard block obvious underage roleplay attempts in the request payload
     const blob = JSON.stringify(body).toLowerCase();
-    if (
-      /\b(underage|preteen|pre-teen|pedophil|child porn|loli|shota|minor sex|kids? sex)\b/.test(
-        blob
-      ) ||
-      /\b(1[0-7]|[0-9])\s*(y\/?o|years?\s*old)\b/.test(blob)
-    ) {
-      // allow ages 18+ in text; only block if combined with underage cues already handled
-    }
     if (
       /\b(underage|preteen|pre-teen|pedophil|child\s*porn|loli|shota)\b/.test(blob)
     ) {
@@ -52,9 +46,12 @@ export async function POST(req: Request) {
     }
 
     const persona = getPersona(personaId);
+    const level = getLevel(levelId, DEFAULT_LEVELS);
+    const rules = (levelRules && String(levelRules).trim()) || level.rules;
+
     const system = buildSystemPrompt(persona, {
       customDescription,
-      intensity,
+      levelRules: rules,
       scenario,
       userName,
     });
@@ -71,8 +68,8 @@ export async function POST(req: Request) {
     const stream = await client.chat.completions.create({
       model: CHAT_MODEL,
       stream: true,
-      temperature: 1.0,
-      max_tokens: 800,
+      temperature: 1.05,
+      max_tokens: 900,
       messages: [{ role: "system", content: system }, ...history],
     });
 
@@ -82,14 +79,13 @@ export async function POST(req: Request) {
         try {
           for await (const chunk of stream) {
             const delta = chunk.choices?.[0]?.delta?.content;
-            if (delta) {
-              controller.enqueue(encoder.encode(delta));
-            }
+            if (delta) controller.enqueue(encoder.encode(delta));
           }
           controller.close();
         } catch (err) {
-          const msg = friendlyApiError(err);
-          controller.enqueue(encoder.encode(`\n\n[error] ${msg}`));
+          controller.enqueue(
+            encoder.encode(`\n\n[error] ${friendlyApiError(err)}`)
+          );
           controller.close();
         }
       },
@@ -99,7 +95,6 @@ export async function POST(req: Request) {
       headers: {
         "Content-Type": "text/plain; charset=utf-8",
         "Cache-Control": "no-cache, no-transform",
-        "X-Content-Type-Options": "nosniff",
       },
     });
   } catch (err) {
