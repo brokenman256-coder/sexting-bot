@@ -24,7 +24,7 @@ export function defaultAdminConfig(): AdminConfig {
     defaultLevelId: "3",
     personaImages: {},
     siteTitle: "Nightline",
-    welcomeNote: "18+ unfiltered · pick a girl · set your level",
+    welcomeNote: "18+ unfiltered \u00b7 pick a girl \u00b7 set your level",
   };
 }
 
