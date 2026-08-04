@@ -4,7 +4,7 @@ export function getXaiClient() {
   const apiKey = process.env.XAI_API_KEY;
   if (!apiKey) {
     throw new Error(
-      "Missing XAI_API_KEY. Add it in Vercel → Project → Settings → Environment Variables, or in .env.local"
+      "Missing XAI_API_KEY. Add it in Vercel → Settings → Environment Variables"
     );
   }
   return new OpenAI({
