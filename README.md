@@ -54,26 +54,25 @@ Open http://localhost:3000
 | `DEFAULT_CREDITS` | `50` | new user credits |
 | `XAI_CHAT_MODEL` | `grok-4.5` | chat model |
 
-## Deploy (Vercel)
+## Deploy (Netlify or Vercel)
 
-1. Push this repo to GitHub  
-2. Import in [Vercel](https://vercel.com)  
-3. Add env: `XAI_API_KEY`, `ADMIN_PASSWORD`, `AUTH_SECRET`  
-4. Deploy  
+1. Connect this GitHub repo
+2. Add env: `XAI_API_KEY`, `ADMIN_PASSWORD`, `AUTH_SECRET`
+3. Build command: `npm run build` (Netlify uses `@netlify/plugin-nextjs`)
 
 ### Storage note
 
 User accounts, chats, and messages persist in `data/db.json` (and in-memory on the server).
 
-- **Local / VPS / Railway**: file persistence works out of the box  
-- **Vercel serverless**: the filesystem is ephemeral — data can reset on cold starts. For production scale, plug in Postgres/Upstash later; the `lib/db.ts` layer is the single place to swap.
+- **Local / VPS / Railway**: file persistence works out of the box
+- **Netlify/Vercel serverless**: filesystem is ephemeral — data can reset on cold starts. For production scale, plug in Postgres/Upstash later; `lib/db.ts` is the single place to swap.
 
 ## User flow
 
-1. Land on `/` → **Sign up** or **Log in**  
-2. Admin sets their **level** (1–3) and **credits**  
-3. User picks companion category, roleplay, level ≤ their max  
-4. Chat, share media, voice notes; L3 can start call mode  
+1. Land on `/` → **Sign up** or **Log in**
+2. Admin sets their **level** (1–3) and **credits**
+3. User picks companion category, roleplay, level ≤ their max
+4. Chat, share media, voice notes; L3 can start call mode
 5. Admin watches **Live** + **History**
 
 ## License
