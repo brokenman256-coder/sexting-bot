@@ -176,10 +176,11 @@ export async function POST(req: Request) {
           const mediaMatch = content.match(
             /\[MEDIA:(image|voice):([^\]]+)\]/i
           );
-          if (mediaMatch && (level.allowMedia || godMode)) {
+          if (mediaMatch && level.allowMedia) {
             const kind = mediaMatch[1].toLowerCase();
             const desc = mediaMatch[2].trim();
             outMediaType = kind === "voice" ? "voice_note" : "image";
+            // Visual card uses persona image + description (simulated send)
             outMediaUrl =
               kind === "image"
                 ? persona.image
@@ -216,9 +217,10 @@ export async function POST(req: Request) {
 
           await updateUser(user.id, { lastActiveAt: new Date().toISOString() });
 
+          // trailer with credits for client
           controller.enqueue(
             encoder.encode(
-              `\n\n[[META:${JSON.stringify({ credits: spent.credits, level: effectiveLevel, godMode })}]]`
+              `\n\n[[META:${JSON.stringify({ credits: spent.credits, level: effectiveLevel })}]]`
             )
           );
           controller.close();

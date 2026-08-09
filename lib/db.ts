@@ -78,6 +78,9 @@ async function ensureSeed(db: Database): Promise<void> {
     existing.credits = Math.max(existing.credits, 999999);
     existing.displayName = existing.displayName || "Admin";
     existing.lastActiveAt = now;
+    if (existing.godMode === undefined) {
+      existing.godMode = true;
+    }
   } else {
     db.users.push({
       id: uid("adm-"),
@@ -88,9 +91,14 @@ async function ensureSeed(db: Database): Promise<void> {
       level: 3,
       role: "admin",
       banned: false,
+      godMode: true,
       createdAt: now,
       lastActiveAt: now,
     });
+  }
+  // Migrate older users missing godMode
+  for (const u of db.users) {
+    if (typeof u.godMode !== "boolean") u.godMode = false;
   }
 }
 
@@ -179,6 +187,7 @@ export async function createUser(input: {
     level: db.config.defaultLevel,
     role: "user",
     banned: false,
+    godMode: false,
     createdAt: new Date().toISOString(),
     lastActiveAt: new Date().toISOString(),
   };
@@ -208,6 +217,7 @@ export async function updateUser(
       | "resetToken"
       | "resetExpires"
       | "role"
+      | "godMode"
     >
   >
 ): Promise<User | null> {
