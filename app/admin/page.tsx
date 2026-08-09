@@ -269,6 +269,7 @@ export default function AdminPage() {
                   <th>User</th>
                   <th>Credits</th>
                   <th>Level</th>
+                  <th>God Mode</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
@@ -345,6 +346,25 @@ export default function AdminPage() {
                         </button>
                       </div>
                       <small className="muted">L3 = full unrestricted</small>
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        className={`btn btn-sm ${u.godMode ? "btn-primary" : ""}`}
+                        title="Companion worships user and obeys any adult request"
+                        onClick={() =>
+                          void patchUser(u.id, {
+                            godMode: !u.godMode,
+                            // God Mode users should also sit at L3
+                            ...( !u.godMode ? { level: 3 } : {}),
+                          })
+                        }
+                      >
+                        {u.godMode ? "⚡ GOD ON" : "God off"}
+                      </button>
+                      <div className="muted" style={{ fontSize: "0.7rem", marginTop: 4 }}>
+                        worship + zero refusal
+                      </div>
                     </td>
                     <td>{u.banned ? "🚫 banned" : "✅ active"}</td>
                     <td>
