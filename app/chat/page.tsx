@@ -343,6 +343,7 @@ export default function ChatPage() {
         );
       }
 
+      // refresh credits from me
       const me = await fetch("/api/auth/me");
       if (me.ok) {
         const d = await me.json();
@@ -400,11 +401,8 @@ export default function ChatPage() {
               L{user.level} max · using {levelId}
             </span>
             <span className="badge">{user.displayName}</span>
-            {user.role === "admin" && (
-              <Link className="btn btn-sm" href="/admin">
-                Admin
-              </Link>
-            )}
+            {/* Admin panel is intentionally not linked for normal users.
+                Staff: open /admin directly after logging in as admin. */}
             <button className="btn btn-sm" type="button" onClick={() => void logout()}>
               Log out
             </button>
@@ -665,12 +663,12 @@ export default function ChatPage() {
             </div>
             <p className="muted" style={{ fontSize: "0.75rem" }}>
               Level 3 unlocks CNC / extreme roleplays, voice calls, and full unrestricted mode.
-              Admin assigns your max level & credits.
+              Your max level and credits are set by the site owner.
             </p>
           </aside>
         </div>
         <p className="footer-note">
-          Adults 18+ only · Characters 21+ · {cfg.messageCreditCost} credit / message · media & voice cost more
+          Adults 18+ only · Characters 21+ · {cfg.messageCreditCost} credit / message · media &amp; voice cost more
         </p>
       </div>
     </>

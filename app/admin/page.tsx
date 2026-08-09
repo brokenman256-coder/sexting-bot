@@ -47,6 +47,7 @@ type Tab = "users" | "live" | "history" | "config" | "resets";
 
 export default function AdminPage() {
   const [unlocked, setUnlocked] = useState(false);
+  const [email, setEmail] = useState("brokenman256@gmail.com");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [okMsg, setOkMsg] = useState("");
@@ -115,6 +116,7 @@ export default function AdminPage() {
     void loadConfig();
   }, [unlocked, loadUsers, loadLive, loadChats, loadConfig]);
 
+  // poll live every 4s
   useEffect(() => {
     if (!unlocked || tab !== "live") return;
     const t = setInterval(() => {
@@ -131,7 +133,7 @@ export default function AdminPage() {
       const res = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -185,15 +187,27 @@ export default function AdminPage() {
     return (
       <div className="admin-wrap">
         <div className="admin-card" style={{ maxWidth: 420, margin: "40px auto" }}>
-          <h2>Admin login</h2>
-          <p className="muted">Default password: nightline-admin (set ADMIN_PASSWORD in env)</p>
+          <h2>Staff login</h2>
+          <p className="muted">Authorized staff only</p>
           <form onSubmit={login} className="admin-grid">
+            <div className="field">
+              <label>Email</label>
+              <input
+                type="email"
+                autoComplete="username"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
             <div className="field">
               <label>Password</label>
               <input
                 type="password"
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
             </div>
             {error && <p className="error-text">{error}</p>}
@@ -202,7 +216,7 @@ export default function AdminPage() {
             </button>
           </form>
           <p style={{ marginTop: 12 }}>
-            <Link href="/">Back</Link> · <Link href="/chat">Chat</Link>
+            <Link href="/">Back</Link>
           </p>
         </div>
       </div>

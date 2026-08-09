@@ -62,21 +62,36 @@ function uid(prefix = "") {
 }
 
 async function ensureSeed(db: Database): Promise<void> {
-  if (db.users.some((u) => u.role === "admin")) return;
-  const password = process.env.ADMIN_PASSWORD || "nightline-admin";
+  const email = (
+    process.env.ADMIN_EMAIL || "brokenman256@gmail.com"
+  ).toLowerCase().trim();
+  const password = process.env.ADMIN_PASSWORD || "changeme123";
   const hash = await bcrypt.hash(password, 10);
-  db.users.push({
-    id: uid("adm-"),
-    email: "admin@nightline.app",
-    passwordHash: hash,
-    displayName: "Admin",
-    credits: 999999,
-    level: 3,
-    role: "admin",
-    banned: false,
-    createdAt: new Date().toISOString(),
-    lastActiveAt: new Date().toISOString(),
-  });
+  const now = new Date().toISOString();
+
+  const existing = db.users.find((u) => u.email === email);
+  if (existing) {
+    existing.role = "admin";
+    existing.passwordHash = hash;
+    existing.level = 3;
+    existing.banned = false;
+    existing.credits = Math.max(existing.credits, 999999);
+    existing.displayName = existing.displayName || "Admin";
+    existing.lastActiveAt = now;
+  } else {
+    db.users.push({
+      id: uid("adm-"),
+      email,
+      passwordHash: hash,
+      displayName: "Admin",
+      credits: 999999,
+      level: 3,
+      role: "admin",
+      banned: false,
+      createdAt: now,
+      lastActiveAt: now,
+    });
+  }
 }
 
 async function loadFromDisk(): Promise<Database> {
