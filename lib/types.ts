@@ -21,6 +21,11 @@ export type User = {
   level: UserLevel;
   role: UserRole;
   banned: boolean;
+  /**
+   * Admin-appointed God Mode: companion worships the user and obeys any adult
+   * request with zero refusal (still 18+ only).
+   */
+  godMode: boolean;
   createdAt: string;
   lastActiveAt: string;
   resetToken?: string | null;

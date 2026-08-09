@@ -15,7 +15,7 @@ export default function LandingPage() {
           <span>Roleplays</span>
           <span>Media share</span>
           <span>Voice notes &amp; calls</span>
-          <span>Admin live chat view</span>
+          <span>Private &amp; 18+</span>
         </div>
         <div className="landing-actions">
           <Link className="btn btn-primary" href="/signup">
@@ -23,9 +23,6 @@ export default function LandingPage() {
           </Link>
           <Link className="btn" href="/login">
             Log in
-          </Link>
-          <Link className="btn btn-sm" href="/admin">
-            Admin
           </Link>
         </div>
         <p className="footer-note" style={{ marginTop: 28 }}>

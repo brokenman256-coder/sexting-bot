@@ -50,6 +50,7 @@ export async function PATCH(req: Request) {
     patch.level = lv;
   }
   if (typeof body.banned === "boolean") patch.banned = body.banned;
+  if (typeof body.godMode === "boolean") patch.godMode = body.godMode;
   if (typeof body.displayName === "string") patch.displayName = body.displayName;
   if (typeof body.password === "string" && body.password.length >= 6) {
     patch.passwordHash = await bcrypt.hash(body.password, 10);
