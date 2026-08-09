@@ -1,14 +1,9 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
-import { getConfig, spendCredits } from "@/lib/db";
+import { getConfig } from "@/lib/db";
 
 export const runtime = "nodejs";
 
-/**
- * Accepts base64 media from client for chat attachment.
- * Stores as data-URL reference (client already has it); validates size/type.
- * For production scale, swap to S3 / Vercel Blob.
- */
 export async function POST(req: Request) {
   const user = await requireUser();
   if (!user) {
@@ -27,7 +22,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid media" }, { status: 400 });
   }
 
-  // ~4MB limit for data URLs in this MVP
   if (dataUrl.length > 5_500_000) {
     return NextResponse.json(
       { error: "File too large (max ~4MB). Compress and retry." },
@@ -51,7 +45,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Media not allowed" }, { status: 403 });
   }
 
-  // Reserve media credit (actual spend happens on chat send)
   if (user.credits < cfg.mediaCreditCost) {
     return NextResponse.json(
       { error: "Not enough credits for media" },
