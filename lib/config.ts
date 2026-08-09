@@ -1,4 +1,4 @@
-import { DEFAULT_LEVELS, type TalkLevel } from "./levels";
+import { DEFAULT_LEVELS } from "./levels";
 
 export const STORAGE_KEYS = {
   ageOk: "nightline_age_ok",
@@ -8,6 +8,14 @@ export const STORAGE_KEYS = {
   customAvatar: "nightline_custom_avatar",
   prefs: "nightline_prefs",
 } as const;
+
+export type TalkLevel = {
+  id: "1" | "2" | "3";
+  name: string;
+  tagline: string;
+  color: string;
+  rules: string;
+};
 
 export type AdminConfig = {
   levels: TalkLevel[];
@@ -45,7 +53,7 @@ export function loadAdminConfig(): AdminConfig {
       ...parsed,
       levels:
         Array.isArray(parsed.levels) && parsed.levels.length === 3
-          ? (parsed.levels as AdminConfig["levels"])
+          ? (parsed.levels as TalkLevel[])
           : base.levels,
       personaImages: parsed.personaImages || {},
     };
@@ -57,12 +65,3 @@ export function loadAdminConfig(): AdminConfig {
 export function saveAdminConfig(cfg: AdminConfig) {
   localStorage.setItem(STORAGE_KEYS.config, JSON.stringify(cfg));
 }
-
-// Re-export a compatible TalkLevel shape for old admin UI
-export type TalkLevel = {
-  id: "1" | "2" | "3";
-  name: string;
-  tagline: string;
-  color: string;
-  rules: string;
-};
