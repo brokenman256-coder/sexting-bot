@@ -14,7 +14,7 @@ export const ROLEPLAYS: Roleplay[] = [
   {
     id: "hotel-night",
     title: "Hotel After Drinks",
-    emoji: "\ud83c\udfe8",
+    emoji: "🏨",
     blurb: "Same hotel. Thin walls. No excuses left.",
     minLevel: 1,
     tags: ["classic", "chemistry"],
@@ -24,7 +24,7 @@ export const ROLEPLAYS: Roleplay[] = [
   {
     id: "ex-texts",
     title: "Ex Texts Back",
-    emoji: "\ud83d\udcf1",
+    emoji: "📱",
     blurb: "3am. Bad idea. Perfect idea.",
     minLevel: 1,
     tags: ["toxic", "nostalgia"],
@@ -34,7 +34,7 @@ export const ROLEPLAYS: Roleplay[] = [
   {
     id: "video-call",
     title: "Late Video Call",
-    emoji: "\ud83d\udcbb",
+    emoji: "💻",
     blurb: "Cameras on. Clothes optional.",
     minLevel: 2,
     tags: ["cam", "visual"],
@@ -44,7 +44,7 @@ export const ROLEPLAYS: Roleplay[] = [
   {
     id: "stranger-bar",
     title: "Stranger at the Bar",
-    emoji: "\ud83c\udf78",
+    emoji: "🍸",
     blurb: "No names. No tomorrow. Just tonight.",
     minLevel: 1,
     tags: ["anonymous", "heat"],
@@ -54,7 +54,7 @@ export const ROLEPLAYS: Roleplay[] = [
   {
     id: "fwb",
     title: "Friends With Benefits",
-    emoji: "\ud83d\udd25",
+    emoji: "🔥",
     blurb: "We said no feelings. We lied a little.",
     minLevel: 1,
     tags: ["casual", "chemistry"],
@@ -64,7 +64,7 @@ export const ROLEPLAYS: Roleplay[] = [
   {
     id: "boss-office",
     title: "After Hours Office",
-    emoji: "\ud83c\udfe2",
+    emoji: "🏢",
     blurb: "Everyone left. Door's locked.",
     minLevel: 2,
     tags: ["power", "risky"],
@@ -74,7 +74,7 @@ export const ROLEPLAYS: Roleplay[] = [
   {
     id: "dom-sub",
     title: "Dom / Sub Night",
-    emoji: "\u26d3",
+    emoji: "⛓",
     blurb: "Safeword exists. Everything else is on the table.",
     minLevel: 2,
     tags: ["bdsm", "control"],
@@ -84,8 +84,8 @@ export const ROLEPLAYS: Roleplay[] = [
   {
     id: "cnc-fantasy",
     title: "CNC Fantasy",
-    emoji: "\ud83c\udf11",
-    blurb: "Level 3 only \u00b7 Negotiated free-use fantasy",
+    emoji: "🌑",
+    blurb: "Level 3 only · Negotiated free-use fantasy",
     minLevel: 3,
     tags: ["extreme", "cnc", "l3"],
     prompt:
@@ -94,7 +94,7 @@ export const ROLEPLAYS: Roleplay[] = [
   {
     id: "first-date",
     title: "First Date Goes Wild",
-    emoji: "\ud83c\udf39",
+    emoji: "🌹",
     blurb: "Dinner was cute. Dessert isn't.",
     minLevel: 1,
     tags: ["romance", "escalation"],
@@ -104,7 +104,7 @@ export const ROLEPLAYS: Roleplay[] = [
   {
     id: "onlyfans-sub",
     title: "Private OF Chat",
-    emoji: "\ud83d\udc8e",
+    emoji: "💎",
     blurb: "Paid fan. Private messages unlocked.",
     minLevel: 2,
     tags: ["creator", "media"],
@@ -114,7 +114,7 @@ export const ROLEPLAYS: Roleplay[] = [
   {
     id: "gym-crush",
     title: "Gym Crush",
-    emoji: "\ud83c\udfcb",
+    emoji: "🏋",
     blurb: "Shared locker room energy (fantasy).",
     minLevel: 1,
     tags: ["athletic", "sweat"],
@@ -124,7 +124,7 @@ export const ROLEPLAYS: Roleplay[] = [
   {
     id: "long-distance",
     title: "Long Distance Sext",
-    emoji: "\ud83c\udf0d",
+    emoji: "🌍",
     blurb: "Miles apart. Phones doing damage.",
     minLevel: 1,
     tags: ["ld", "voice", "media"],
