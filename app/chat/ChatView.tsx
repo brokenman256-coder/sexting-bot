@@ -93,6 +93,11 @@ export default function ChatView(p: ChatViewProps) {
           </div>
           <div className="top-actions">
             <span className="credits-pill">{user.credits} credits</span>
+            {user.godMode && (
+              <span className="badge" style={{ borderColor: "#fbbf24", color: "#fde68a" }}>
+                ⚡ GOD MODE
+              </span>
+            )}
             <span className="badge">L{user.level} max · using {levelId}</span>
             <span className="badge">{user.displayName}</span>
 
