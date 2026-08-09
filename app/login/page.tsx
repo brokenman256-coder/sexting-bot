@@ -1,17 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, Suspense, useState } from "react";
+import { useRouter } from "next/navigation";
+import { FormEvent, useEffect, useState } from "react";
 
-function LoginForm() {
+export default function LoginPage() {
   const router = useRouter();
-  const params = useSearchParams();
-  const next = params.get("next") || "/chat";
+  const [nextPath, setNextPath] = useState("/chat");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [ready, setReady] = useState(false);
+
+  // Avoid useSearchParams() — it causes a blank flash / CSR bailout on Netlify.
+  useEffect(() => {
+    try {
+      const p = new URLSearchParams(window.location.search);
+      setNextPath(p.get("next") || "/chat");
+    } catch {
+      setNextPath("/chat");
+    }
+    setReady(true);
+  }, []);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -21,17 +32,17 @@ function LoginForm() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: email.trim(), password }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setError(data.error || "Login failed");
         return;
       }
-      router.push(next);
-      router.refresh();
+      // Full navigation is more reliable than router.push after cookie set
+      window.location.href = nextPath || "/chat";
     } catch {
-      setError("Network error");
+      setError("Network error — try again");
     } finally {
       setBusy(false);
     }
@@ -53,24 +64,31 @@ function LoginForm() {
             <label>Email</label>
             <input
               type="email"
+              name="email"
               autoComplete="email"
+              inputMode="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@email.com"
               required
+              disabled={busy}
             />
           </div>
           <div className="field">
             <label>Password</label>
             <input
               type="password"
+              name="password"
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              placeholder="Your password"
               required
+              disabled={busy}
             />
           </div>
-          {error && <p className="error-text">{error}</p>}
-          <button className="btn btn-primary" type="submit" disabled={busy}>
+          {error ? <p className="error-text">{error}</p> : null}
+          <button className="btn btn-primary" type="submit" disabled={busy || !ready}>
             {busy ? "Signing in…" : "Log in"}
           </button>
         </form>
@@ -80,13 +98,5 @@ function LoginForm() {
         </div>
       </div>
     </div>
-  );
-}
-
-export default function LoginPage() {
-  return (
-    <Suspense fallback={<div className="auth-page" />}>
-      <LoginForm />
-    </Suspense>
   );
 }

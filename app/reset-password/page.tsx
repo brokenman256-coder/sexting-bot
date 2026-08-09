@@ -1,17 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, Suspense, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
-function ResetForm() {
-  const router = useRouter();
-  const params = useSearchParams();
-  const [token, setToken] = useState(params.get("token") || "");
+export default function ResetPasswordPage() {
+  const [token, setToken] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [ok, setOk] = useState("");
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    try {
+      const p = new URLSearchParams(window.location.search);
+      const t = p.get("token");
+      if (t) setToken(t);
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -24,13 +31,15 @@ function ResetForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, password }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setError(data.error || "Failed");
         return;
       }
       setOk(data.message || "Password updated");
-      setTimeout(() => router.push("/login"), 1200);
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 1200);
     } catch {
       setError("Network error");
     } finally {
@@ -50,6 +59,7 @@ function ResetForm() {
               value={token}
               onChange={(e) => setToken(e.target.value)}
               required
+              disabled={busy}
             />
           </div>
           <div className="field">
@@ -60,10 +70,11 @@ function ResetForm() {
               onChange={(e) => setPassword(e.target.value)}
               minLength={6}
               required
+              disabled={busy}
             />
           </div>
-          {error && <p className="error-text">{error}</p>}
-          {ok && <p className="success">{ok}</p>}
+          {error ? <p className="error-text">{error}</p> : null}
+          {ok ? <p className="success">{ok}</p> : null}
           <button className="btn btn-primary" type="submit" disabled={busy}>
             {busy ? "Saving…" : "Update password"}
           </button>
@@ -74,13 +85,5 @@ function ResetForm() {
         </div>
       </div>
     </div>
-  );
-}
-
-export default function ResetPasswordPage() {
-  return (
-    <Suspense fallback={<div className="auth-page" />}>
-      <ResetForm />
-    </Suspense>
   );
 }

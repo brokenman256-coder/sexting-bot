@@ -1,11 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 export default function SignupPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -25,17 +23,21 @@ export default function SignupPage() {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, displayName, ageOk }),
+        body: JSON.stringify({
+          email: email.trim(),
+          password,
+          displayName: displayName.trim(),
+          ageOk,
+        }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setError(data.error || "Signup failed");
         return;
       }
-      router.push("/chat");
-      router.refresh();
+      window.location.href = "/chat";
     } catch {
-      setError("Network error");
+      setError("Network error — try again");
     } finally {
       setBusy(false);
     }
@@ -63,6 +65,7 @@ export default function SignupPage() {
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="What companions call you"
               required
+              disabled={busy}
             />
           </div>
           <div className="field">
@@ -73,6 +76,7 @@ export default function SignupPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={busy}
             />
           </div>
           <div className="field">
@@ -84,6 +88,7 @@ export default function SignupPage() {
               onChange={(e) => setPassword(e.target.value)}
               minLength={6}
               required
+              disabled={busy}
             />
           </div>
           <label className="age-check">
@@ -91,13 +96,14 @@ export default function SignupPage() {
               type="checkbox"
               checked={ageOk}
               onChange={(e) => setAgeOk(e.target.checked)}
+              disabled={busy}
             />
             <span>
               I confirm I am <strong>18 years or older</strong>. This site is
               adults-only. No underage content.
             </span>
           </label>
-          {error && <p className="error-text">{error}</p>}
+          {error ? <p className="error-text">{error}</p> : null}
           <button className="btn btn-primary" type="submit" disabled={busy}>
             {busy ? "Creating…" : "Sign up & enter"}
           </button>

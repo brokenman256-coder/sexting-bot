@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import "./ui-chat.css";
-import "./ui-extra.css";
 
 export const metadata: Metadata = {
   title: "Nightline — Unrestricted AI Sex Chat",
@@ -13,7 +11,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }
