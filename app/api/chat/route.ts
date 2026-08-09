@@ -164,7 +164,7 @@ export async function POST(req: Request) {
             }
           }
           // Parse optional AI media tags
-          let content = full.trim() || "…";
+          let content = full.trim() || "\u2026";
           let outMediaUrl: string | null = null;
           let outMediaType: "image" | "voice_note" | null = null;
           const mediaMatch = content.match(
@@ -182,12 +182,12 @@ export async function POST(req: Request) {
             content = content.replace(mediaMatch[0], "").trim();
             if (kind === "image") {
               content = content
-                ? `${content}\n\n📸 *sent a photo*\n_${desc}_`
-                : `📸 *sent a photo*\n_${desc}_`;
+                ? `${content}\n\n\ud83d\udcf8 *sent a photo*\n_${desc}_`
+                : `\ud83d\udcf8 *sent a photo*\n_${desc}_`;
             } else {
               content = content
-                ? `${content}\n\n🎤 *voice note*\n_${desc}_`
-                : `🎤 *voice note*\n_${desc}_`;
+                ? `${content}\n\n\ud83c\udfa4 *voice note*\n_${desc}_`
+                : `\ud83c\udfa4 *voice note*\n_${desc}_`;
             }
           }
 
