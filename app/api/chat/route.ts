@@ -122,13 +122,19 @@ export async function POST(req: Request) {
 
     const persona = getPersona(personaId);
     const rp = getRoleplay(roleplayId || chat.roleplayId);
+    const godMode = Boolean(user.godMode);
+    // God Mode forces max intensity (level 3 rules) + worship/obedience layer
+    const effectiveRules = godMode
+      ? getLevel(3, cfg.levels).rules
+      : level.rules;
     const system = buildSystemPrompt(persona, {
       customDescription,
-      levelRules: level.rules,
+      levelRules: effectiveRules,
       scenario: scenario || chat.scenario,
       roleplayPrompt: rp?.prompt,
       userName: userName || user.displayName,
-      callMode: Boolean(callMode) && level.allowCall,
+      callMode: Boolean(callMode) && (level.allowCall || godMode),
+      godMode,
     });
 
     // Prefer stored history for consistency
@@ -145,7 +151,7 @@ export async function POST(req: Request) {
     const stream = await client.chat.completions.create({
       model: CHAT_MODEL,
       stream: true,
-      temperature: effectiveLevel >= 3 ? 1.1 : 1.0,
+      temperature: godMode || effectiveLevel >= 3 ? 1.15 : 1.0,
       max_tokens: 1000,
       messages: [{ role: "system", content: system }, ...history],
     });
@@ -170,11 +176,10 @@ export async function POST(req: Request) {
           const mediaMatch = content.match(
             /\[MEDIA:(image|voice):([^\]]+)\]/i
           );
-          if (mediaMatch && level.allowMedia) {
+          if (mediaMatch && (level.allowMedia || godMode)) {
             const kind = mediaMatch[1].toLowerCase();
             const desc = mediaMatch[2].trim();
             outMediaType = kind === "voice" ? "voice_note" : "image";
-            // Visual card uses persona image + description (simulated send)
             outMediaUrl =
               kind === "image"
                 ? persona.image
@@ -211,10 +216,9 @@ export async function POST(req: Request) {
 
           await updateUser(user.id, { lastActiveAt: new Date().toISOString() });
 
-          // trailer with credits for client
           controller.enqueue(
             encoder.encode(
-              `\n\n[[META:${JSON.stringify({ credits: spent.credits, level: effectiveLevel })}]]`
+              `\n\n[[META:${JSON.stringify({ credits: spent.credits, level: effectiveLevel, godMode })}]]`
             )
           );
           controller.close();
