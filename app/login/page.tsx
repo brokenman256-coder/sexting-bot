@@ -71,7 +71,7 @@ function LoginForm() {
           </div>
           {error && <p className="error-text">{error}</p>}
           <button className="btn btn-primary" type="submit" disabled={busy}>
-            {busy ? "Signing in\u2026" : "Log in"}
+            {busy ? "Signing in…" : "Log in"}
           </button>
         </form>
         <div className="links-row">
