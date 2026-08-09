@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Nightline \u2014 Sexy AI Girl Chat",
+  title: "Nightline — Unrestricted AI Sex Chat",
   description:
-    "18+ unfiltered AI sexting with sexy girl photos, custom backgrounds, and 3 talk levels.",
+    "18+ AI companions · women, men, gay & more · 3 talk levels · media · voice · admin credits",
   robots: { index: false, follow: false },
 };
 

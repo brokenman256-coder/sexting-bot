@@ -1,47 +1,80 @@
-# Nightline — Sexy AI Girl Sexting Bot
+# Nightline — Unrestricted AI Sex Chat Bot
 
-18+ unfiltered AI girl chat powered by **Grok 4.5**.
+18+ adult AI companion platform powered by **Grok / xAI**.
 
-## Features
+## What's included
 
-- **Sexy girl personas** with photos (Nova, Sienna, Jade, Ruby)
-- **Upload any photo** → becomes chat **background** and/or **custom girl**
-- **3 admin-tunable talk levels**
+- **Auth**: signup, login, httpOnly session cookies, forgot + reset password
+- **3 talk levels** (admin assigns max level per user)
   1. Tease
-  2. Explicit  
-  3. No Limits (max unrestricted adult)
-- **Admin portal** at `/admin` — edit level names, rules, default level, persona image URLs
-- Streaming chat, scenario + name fields, mobile-friendly UI
+  2. Explicit
+  3. **No Limits** — full unrestricted adult (kinks, CNC fantasy, voice call mode)
+- **Credits** — admin adds/sets credits; messages, media, voice spend credits
+- **Companions** — women, men, gay, lesbian, bi, trans, custom (real-looking portraits)
+- **Roleplays** — hotel, ex texts, OF chat, dom/sub, CNC (L3), etc.
+- **Media** — share images; AI can "send" photo/voice tags
+- **Voice notes** — browser mic recording
+- **Voice call mode** — L3 conversational call UI
+- **Admin dashboard** (`/admin`)
+  - Assign credits & levels
+  - Ban / set password
+  - **Live chats** (auto-refresh)
+  - Full **chat history**
+  - Site config + level rules
+  - Password reset queue
 
 ## Hard limit
 
-Adults **18+ only**. Underage content is blocked. Everything else between consenting adults is free at Level 3.
+**Adults 18+ only.** Characters are 21+. Underage content is blocked.
 
 ## Setup
 
 ```bash
 cp .env.example .env.local
-# set XAI_API_KEY + optional ADMIN_PASSWORD
+# set XAI_API_KEY, ADMIN_PASSWORD, AUTH_SECRET
 npm install
 npm run dev
 ```
+
+Open http://localhost:3000
+
+### Default admin
+
+- URL: `/admin`
+- Password: `nightline-admin` (or your `ADMIN_PASSWORD`)
+- Seed user: `admin@nightline.app` with the same password
 
 ## Env
 
 | Variable | Default | Purpose |
 |---|---|---|
 | `XAI_API_KEY` | — | required |
-| `ADMIN_PASSWORD` | `nightline-admin` | `/admin` login |
+| `ADMIN_PASSWORD` | `nightline-admin` | admin unlock |
+| `AUTH_SECRET` | fallback | JWT cookie signing |
+| `DEFAULT_CREDITS` | `50` | new user credits |
 | `XAI_CHAT_MODEL` | `grok-4.5` | chat model |
 
-## Deploy (Vercel + GitHub)
+## Deploy (Vercel)
 
 1. Push this repo to GitHub  
-2. Import in Vercel  
-3. Add `XAI_API_KEY` and `ADMIN_PASSWORD`  
+2. Import in [Vercel](https://vercel.com)  
+3. Add env: `XAI_API_KEY`, `ADMIN_PASSWORD`, `AUTH_SECRET`  
 4. Deploy  
 
-Admin config is stored in the browser (localStorage) so it works without a database. Use Export/Import JSON to back it up.
+### Storage note
+
+User accounts, chats, and messages persist in `data/db.json` (and in-memory on the server).
+
+- **Local / VPS / Railway**: file persistence works out of the box  
+- **Vercel serverless**: the filesystem is ephemeral — data can reset on cold starts. For production scale, plug in Postgres/Upstash later; the `lib/db.ts` layer is the single place to swap.
+
+## User flow
+
+1. Land on `/` → **Sign up** or **Log in**  
+2. Admin sets their **level** (1–3) and **credits**  
+3. User picks companion category, roleplay, level ≤ their max  
+4. Chat, share media, voice notes; L3 can start call mode  
+5. Admin watches **Live** + **History**
 
 ## License
 
