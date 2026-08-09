@@ -15,7 +15,6 @@ export async function POST(req: Request) {
   const email = String((body as { email?: string }).email || "").trim().toLowerCase();
   const expected = process.env.ADMIN_PASSWORD || "nightline-admin";
 
-  // Path 1: master ADMIN_PASSWORD
   if (password && password === expected) {
     const res = NextResponse.json({
       ok: true,
@@ -23,7 +22,6 @@ export async function POST(req: Request) {
       mode: "master",
     });
     res.cookies.set(ADMIN_COOKIE, "1", sessionCookieOptions(60 * 60 * 12));
-    // also try to attach admin user session if exists
     const adminUser = await findUserByEmail("admin@nightline.app");
     if (adminUser) {
       const token = await createSessionToken(adminUser);
@@ -32,7 +30,6 @@ export async function POST(req: Request) {
     return res;
   }
 
-  // Path 2: admin user account
   if (email && password) {
     const user = await findUserByEmail(email);
     if (user && user.role === "admin" && !user.banned) {
