@@ -99,7 +99,7 @@ export default function SignupPage() {
           </label>
           {error && <p className="error-text">{error}</p>}
           <button className="btn btn-primary" type="submit" disabled={busy}>
-            {busy ? "Creating\u2026" : "Sign up & enter"}
+            {busy ? "Creating…" : "Sign up & enter"}
           </button>
         </form>
         <div className="links-row">

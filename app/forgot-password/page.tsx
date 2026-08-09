@@ -70,13 +70,13 @@ export default function ForgotPasswordPage() {
               )}
               {result.resetPath && (
                 <p style={{ marginTop: 8 }}>
-                  <Link href={result.resetPath}>Open reset page \u2192</Link>
+                  <Link href={result.resetPath}>Open reset page →</Link>
                 </p>
               )}
             </div>
           )}
           <button className="btn btn-primary" type="submit" disabled={busy}>
-            {busy ? "Working\u2026" : "Create reset token"}
+            {busy ? "Working…" : "Create reset token"}
           </button>
         </form>
         <div className="links-row">

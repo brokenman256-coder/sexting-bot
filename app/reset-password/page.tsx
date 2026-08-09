@@ -65,7 +65,7 @@ function ResetForm() {
           {error && <p className="error-text">{error}</p>}
           {ok && <p className="success">{ok}</p>}
           <button className="btn btn-primary" type="submit" disabled={busy}>
-            {busy ? "Saving\u2026" : "Update password"}
+            {busy ? "Saving…" : "Update password"}
           </button>
         </form>
         <div className="links-row">
