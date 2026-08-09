@@ -16,6 +16,7 @@ const PUBLIC = [
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
+  // allow static & next internals
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon") ||
@@ -29,8 +30,10 @@ export function middleware(req: NextRequest) {
     PUBLIC.some((p) => pathname === p || pathname.startsWith(p + "/"));
 
   const session = req.cookies.get("nightline_session")?.value;
+  const admin = req.cookies.get("nightline_admin")?.value;
 
   if (pathname.startsWith("/admin")) {
+    // admin page handles its own login UI; allow through
     return NextResponse.next();
   }
 
@@ -47,7 +50,8 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (!isPublic && pathname.startsWith("/api/") && !session) {
+  if (!isPublic && pathname.startsWith("/api/") && !session && !admin) {
+    // let API routes return 401 themselves for finer control
     return NextResponse.next();
   }
 
