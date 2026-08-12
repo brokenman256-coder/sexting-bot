@@ -9,7 +9,7 @@
   NODE_VERSION = "20"
 
 # Set these in Netlify UI → Site settings → Environment variables:
-# XAI_API_KEY
-# ADMIN_PASSWORD
-# AUTH_SECRET
+# GROQ_API_KEY (free — preferred)  OR  XAI_API_KEY (paid, or paste gsk_ for Groq)
+# CHAT_MODEL (optional, default llama-3.3-70b-versatile on Groq)
+# ADMIN_EMAIL / ADMIN_PASSWORD / AUTH_SECRET
 # DEFAULT_CREDITS (optional)

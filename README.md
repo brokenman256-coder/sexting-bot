@@ -1,6 +1,6 @@
 # Nightline — Unrestricted AI Sex Chat Bot
 
-18+ adult AI companion platform powered by **Grok / xAI**.
+18+ adult AI companion platform. Default AI: **free Groq** (Llama); optional paid **xAI Grok**.
 
 ## What's included
 
@@ -21,7 +21,7 @@
   - **Live chats** (auto-refresh)
   - Full **chat history**
   - Site config + level rules
-  - Password reset queue
+  - Password reset tokens
 
 ## Hard limit
 
@@ -31,7 +31,7 @@
 
 ```bash
 cp .env.example .env.local
-# set XAI_API_KEY, ADMIN_PASSWORD, AUTH_SECRET
+# set GROQ_API_KEY (free) or XAI_API_KEY, plus ADMIN_PASSWORD, AUTH_SECRET
 npm install
 npm run dev
 ```
@@ -48,17 +48,18 @@ Open http://localhost:3000
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `XAI_API_KEY` | — | required |
+| `GROQ_API_KEY` | — | free Groq key (preferred) |
+| `XAI_API_KEY` | — | paid xAI, or paste a Groq `gsk_` key |
+| `CHAT_MODEL` | `llama-3.3-70b-versatile` on Groq | model override |
 | `ADMIN_PASSWORD` | `nightline-admin` | admin unlock |
 | `AUTH_SECRET` | fallback | JWT cookie signing |
 | `DEFAULT_CREDITS` | `50` | new user credits |
-| `XAI_CHAT_MODEL` | `grok-4.5` | chat model |
 
-## Deploy (Vercel)
+## Deploy (Netlify / Vercel)
 
 1. Push this repo to GitHub  
-2. Import in [Vercel](https://vercel.com)  
-3. Add env: `XAI_API_KEY`, `ADMIN_PASSWORD`, `AUTH_SECRET`  
+2. Import site  
+3. Add env: `GROQ_API_KEY` or Groq key in `XAI_API_KEY`, plus `ADMIN_PASSWORD`, `AUTH_SECRET`  
 4. Deploy  
 
 ### Storage note
