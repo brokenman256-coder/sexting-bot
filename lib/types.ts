@@ -11,26 +11,57 @@ export type GenderCategory =
 
 export type MediaType = "image" | "audio" | "video" | "voice_note";
 
+export type ActivityEvent = {
+  id: string;
+  type:
+    | "signup"
+    | "login"
+    | "logout"
+    | "chat_start"
+    | "message"
+    | "ban"
+    | "unban"
+    | "credits"
+    | "level"
+    | "install"
+    | "install_prompt"
+    | "continuity"
+    | "admin"
+    | "error";
+  userId?: string | null;
+  email?: string | null;
+  displayName?: string | null;
+  chatId?: string | null;
+  personaId?: string | null;
+  detail: string;
+  meta?: Record<string, string | number | boolean | null>;
+  createdAt: string;
+};
+
 export type User = {
   id: string;
   email: string;
   passwordHash: string;
   displayName: string;
   credits: number;
-  /** Max talk level admin assigned (1–3). Level 3 = full unrestricted. */
   level: UserLevel;
   role: UserRole;
   banned: boolean;
-  /**
-   * Admin-appointed God Mode: companion worships the user and obeys any adult
-   * request with zero refusal (still 18+ only).
-   */
   godMode: boolean;
+  favorites: string[];
+  instagramHandle?: string | null;
+  metaUserId?: string | null;
+  trainingConsent?: boolean;
+  trainingConsentAt?: string | null;
+  trainingConsentVersion?: string | null;
+  chainMemory?: string | null;
   createdAt: string;
   lastActiveAt: string;
   resetToken?: string | null;
   resetExpires?: string | null;
 };
+
+export const TRAINING_CONSENT_VERSION = "v1-2026-08";
 
 export type ChatMessage = {
   id: string;
@@ -54,6 +85,7 @@ export type ChatThread = {
   updatedAt: string;
   lastMessageAt: string;
   active: boolean;
+  customDescription?: string;
 };
 
 export type LiveSession = {
@@ -74,6 +106,23 @@ export type PasswordResetRequest = {
   createdAt: string;
   expiresAt: string;
   used: boolean;
+};
+
+export type CustomCharacter = {
+  id: string;
+  userId: string;
+  name: string;
+  age: number;
+  gender: GenderCategory;
+  tagline: string;
+  bio: string;
+  description: string;
+  image: string;
+  greeting: string;
+  createdAt: string;
+  liveHuman?: boolean;
+  looks?: string;
+  personality?: string;
 };
 
 export type SiteConfig = {
