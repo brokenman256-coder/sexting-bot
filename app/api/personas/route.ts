@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { listSystemProfiles, pruneDuplicateBotImages } from "@/lib/db";
+import { listSystemProfiles, pruneDuplicateBotImages } from "@/lib/db-characters";
 import { PERSONAS } from "@/lib/personas";
 import { imageKey } from "@/lib/profile-bot";
 
@@ -57,10 +57,7 @@ export async function GET() {
     name: c.name,
     age: c.age,
     gender: c.gender,
-    tags: c.tagline
-      .split("·")
-      .map((t) => t.trim())
-      .filter(Boolean),
+    tags: c.tagline.split("·").map((t) => t.trim()).filter(Boolean),
     tagline: c.tagline,
     bio: c.bio,
     image: c.image,

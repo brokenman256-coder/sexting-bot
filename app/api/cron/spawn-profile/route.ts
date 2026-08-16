@@ -4,7 +4,7 @@ import {
   createCustomCharacter,
   listAllSystemProfiles,
   pruneDuplicateBotImages,
-} from "@/lib/db";
+} from "@/lib/db-characters";
 import {
   DAILY_PROFILE_CAP,
   PROFILE_WRITER_SYSTEM,
@@ -15,7 +15,7 @@ import {
   utcDayStamp,
 } from "@/lib/profile-bot";
 import { PERSONAS } from "@/lib/personas";
-import { aiChatComplete } from "@/lib/xai";
+import { aiChatComplete } from "@/lib/ai-complete";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -50,7 +50,6 @@ async function spawn(req: Request) {
   try {
     const reserved = PERSONAS.map((p) => p.image);
     const pruned = await pruneDuplicateBotImages(reserved);
-
     const day = utcDayStamp();
     const today = await countBotProfilesOnDay(day);
     if (today >= DAILY_PROFILE_CAP) {
@@ -63,19 +62,18 @@ async function spawn(req: Request) {
         at: new Date().toISOString(),
       });
     }
-
     const existing = await listAllSystemProfiles();
-    const usedImages = [...reserved, ...existing.map((c) => c.image)];
-    const usedNames = existing.map((c) => c.name);
-    const seed = makeProfileSeed(usedImages, usedNames);
+    const seed = makeProfileSeed(
+      [...reserved, ...existing.map((c) => c.image)],
+      existing.map((c) => c.name)
+    );
     if (!seed) {
       return NextResponse.json({
         ok: false,
-        error: "No unused photos left — wait for older profiles to rotate",
+        error: "No unused photos left",
         pruned,
       });
     }
-
     let profile = mergeAiProfile(seed, "");
     try {
       const raw = await aiChatComplete({
@@ -88,9 +86,8 @@ async function spawn(req: Request) {
       });
       profile = mergeAiProfile(seed, raw);
     } catch {
-      /* template seed is already a full established person */
+      /* template is already established */
     }
-
     const character = await createCustomCharacter({
       userId: SYSTEM_BOT_ID,
       name: profile.name,
@@ -104,7 +101,6 @@ async function spawn(req: Request) {
       looks: profile.looks,
       personality: profile.personality,
     });
-
     return NextResponse.json({
       ok: true,
       created: {
