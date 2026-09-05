@@ -54,7 +54,48 @@ function defaultModel() {
 
 export const CHAT_MODEL = defaultModel();
 
-export function friendlyApiError(err: unknown): string {
+/**
+ * Optional explicit-content provider slot (levels 2+).
+ * Works with any OpenAI-compatible host that permits legal adult content:
+ *   Novita  -> NSFW_BASE_URL=https://api.novita.ai/v3/openai
+ *   DeepInfra -> NSFW_BASE_URL=https://api.deepinfra.com/v1
+ *   Local Ollama -> NSFW_BASE_URL=http://localhost:11434/v1
+ * Level 1 (tease) keeps using the default Groq/xAI provider (fast, free).
+ */
+function defaultNsfwModel(baseURL: string): string {
+  if (/novita/i.test(baseURL)) return "sao10k/l3-euryale-70b";
+  if (/deepinfra/i.test(baseURL)) return "cognitivecomputations/dolphin-mixtral-8x22b";
+  if (/localhost|127\.0\.0\.1/.test(baseURL)) return "local-model";
+  return "meta-llama/llama-3.1-8b-instruct";
+}
+
+export type ResolvedClient = { client: OpenAI; model: string; label: string };
+
+export function getNsfwClient(): ResolvedClient | null {
+  const apiKey = process.env.NSFW_API_KEY?.trim();
+  const baseURL = process.env.NSFW_BASE_URL?.trim();
+  if (!apiKey || !baseURL) return null;
+  return {
+    client: new OpenAI({ apiKey, baseURL }),
+    model:
+      process.env.NSFW_CHAT_MODEL?.trim() || defaultNsfwModel(baseURL),
+    label: "NSFW provider",
+  };
+}
+
+/** Route by talk level: explicit levels (2+) prefer the NSFW provider. */
+export function getClientForLevel(level: number): ResolvedClient {
+  if (level >= 2) {
+    const nsfw = getNsfwClient();
+    if (nsfw) return nsfw;
+  }
+  return { client: getXaiClient(), model: CHAT_MODEL, label: "default" };
+}
+
+export function friendlyApiError(
+  err: unknown,
+  providerLabel?: string
+): string {
   const e = err as {
     message?: string;
     status?: number;
@@ -63,11 +104,14 @@ export function friendlyApiError(err: unknown): string {
   };
   const msg = String(e?.error?.message || e?.message || err || "");
   const status = e?.status || e?.statusCode;
-  let provider: Provider = "xai";
-  try {
-    provider = resolveProvider().provider;
-  } catch {
-    /* ignore */
+  let provider: Provider | "nsfw" = "xai";
+  if (providerLabel === "NSFW provider") provider = "nsfw";
+  else {
+    try {
+      provider = resolveProvider().provider;
+    } catch {
+      /* ignore */
+    }
   }
 
   if (
@@ -79,12 +123,18 @@ export function friendlyApiError(err: unknown): string {
     if (provider === "groq") {
       return "Groq quota/limit hit. Check https://console.groq.com";
     }
+    if (provider === "nsfw") {
+      return "NSFW provider balance/limit hit. Check your provider dashboard";
+    }
     return "Out of xAI credits. Add credits at https://console.x.ai or use free GROQ_API_KEY";
   }
   if (
     status === 401 ||
     /Incorrect API key|Unauthorized|invalid.*key|Invalid API Key/i.test(msg)
   ) {
+    if (provider === "nsfw") {
+      return "Invalid NSFW_API_KEY. Check the key and NSFW_BASE_URL in environment variables";
+    }
     return provider === "groq"
       ? "Invalid Groq API key. Create one at https://console.groq.com/keys"
       : "Invalid XAI_API_KEY. Create one at https://console.x.ai";

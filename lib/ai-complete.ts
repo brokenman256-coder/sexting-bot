@@ -1,4 +1,4 @@
-import { CHAT_MODEL, getXaiClient } from "./xai";
+import { CHAT_MODEL, getClientForLevel, getXaiClient } from "./xai";
 
 type ChatMsg = { role: "system" | "user" | "assistant"; content: string };
 
@@ -7,10 +7,12 @@ export async function aiChatComplete(opts: {
   model?: string;
   temperature?: number;
   max_tokens?: number;
+  /** Route to the explicit-content provider for levels 2+ when configured */
+  level?: number;
 }): Promise<string> {
-  const client = getXaiClient();
-  const res = await client.chat.completions.create({
-    model: opts.model || CHAT_MODEL,
+  const route = getClientForLevel(opts.level ?? 0);
+  const res = await route.client.chat.completions.create({
+    model: opts.model || route.model,
     messages: opts.messages,
     temperature: opts.temperature ?? 1.05,
     max_tokens: opts.max_tokens ?? 800,

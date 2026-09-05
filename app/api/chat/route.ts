@@ -11,7 +11,7 @@ import { requireUser } from "@/lib/auth";
 import { buildSystemPrompt, getPersona } from "@/lib/personas";
 import { getRoleplay } from "@/lib/roleplays";
 import { clampLevel, getLevel } from "@/lib/levels";
-import { CHAT_MODEL, friendlyApiError, getXaiClient } from "@/lib/xai";
+import { friendlyApiError, getClientForLevel } from "@/lib/xai";
 import type { UserLevel } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -23,6 +23,7 @@ type IncomingMessage = {
 };
 
 export async function POST(req: Request) {
+  let aiLabel = "default";
   try {
     const user = await requireUser();
     if (!user) {
@@ -147,9 +148,11 @@ export async function POST(req: Request) {
         content: String(m.content).slice(0, 8000),
       }));
 
-    const client = getXaiClient();
-    const stream = await client.chat.completions.create({
-      model: CHAT_MODEL,
+    // Level routing: explicit levels (2+) prefer the NSFW provider when configured
+    const route = getClientForLevel(godMode ? 3 : effectiveLevel);
+    aiLabel = route.label;
+    const stream = await route.client.chat.completions.create({
+      model: route.model,
       stream: true,
       temperature: godMode || effectiveLevel >= 3 ? 1.15 : 1.0,
       max_tokens: 1000,
@@ -226,7 +229,7 @@ export async function POST(req: Request) {
           controller.close();
         } catch (err) {
           controller.enqueue(
-            encoder.encode(`\n\n[error] ${friendlyApiError(err)}`)
+            encoder.encode(`\n\n[error] ${friendlyApiError(err, aiLabel)}`)
           );
           controller.close();
         }
@@ -241,6 +244,6 @@ export async function POST(req: Request) {
       },
     });
   } catch (err) {
-    return Response.json({ error: friendlyApiError(err) }, { status: 500 });
+    return Response.json({ error: friendlyApiError(err, aiLabel) }, { status: 500 });
   }
 }
