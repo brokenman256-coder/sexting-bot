@@ -16,6 +16,7 @@ import {
 } from "@/lib/profile-bot";
 import { PERSONAS } from "@/lib/personas";
 import { aiChatComplete } from "@/lib/ai-complete";
+import { storeFaceBytes } from "@/lib/db-characters";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -63,7 +64,7 @@ async function spawn(req: Request) {
       });
     }
     const existing = await listAllSystemProfiles();
-    const seed = makeProfileSeed(
+    const seed = await makeProfileSeed(
       [...reserved, ...existing.map((c) => c.image)],
       existing.map((c) => c.name)
     );
@@ -87,6 +88,15 @@ async function spawn(req: Request) {
       profile = mergeAiProfile(seed, raw);
     } catch {
       /* template is already established */
+    }
+    // Persist the synthetic face so /api/face/<hash>.jpg serves it forever.
+    if (seed.imageBytes && seed.faceHash) {
+      try {
+        await storeFaceBytes(seed.faceHash, seed.imageBytes);
+      } catch {
+        // Blob store unavailable → keep the inline data-URL so the photo still works.
+        if (seed.dataUrl) profile.image = seed.dataUrl;
+      }
     }
     const character = await createCustomCharacter({
       userId: SYSTEM_BOT_ID,

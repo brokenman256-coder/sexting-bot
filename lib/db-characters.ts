@@ -1,4 +1,5 @@
 import { getDb, persist } from "./db";
+import { getBinary, putBinary } from "./store";
 import type { CustomCharacter } from "./types";
 
 type LooseDb = {
@@ -119,8 +120,8 @@ export async function createCustomCharacter(input: {
     const bots = db.customCharacters
       .filter((x) => x.userId === "__bot__" && !x.liveHuman)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-    if (bots.length > 210) {
-      const drop = new Set(bots.slice(210).map((x) => x.id));
+    if (bots.length > 400) {
+      const drop = new Set(bots.slice(400).map((x) => x.id));
       db.customCharacters = db.customCharacters.filter((x) => !drop.has(x.id));
     }
   }
@@ -160,4 +161,18 @@ export async function resolveCompanion(
   if (!cc) return null;
   if (cc.userId === userId || cc.userId === "__bot__") return cc;
   return null;
+}
+
+/** Persist a synthetic-face image under its content hash; returns its URL. */
+export async function storeFaceBytes(
+  hash: string,
+  buf: Buffer
+): Promise<string> {
+  await putBinary(`faces/${hash}`, buf);
+  return `/api/face/${hash}.jpg`;
+}
+
+/** Read stored face bytes by hash (served via /api/face/[id]). */
+export async function getFaceBytes(hash: string): Promise<Buffer | null> {
+  return getBinary(`faces/${hash}`);
 }

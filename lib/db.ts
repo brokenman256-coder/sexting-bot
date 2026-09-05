@@ -1,6 +1,5 @@
-import { promises as fs } from "fs";
-import path from "path";
 import bcrypt from "bcryptjs";
+import { loadJSON, saveJSON } from "./store";
 import { DEFAULT_LEVELS } from "./levels";
 import type {
   ChatMessage,
@@ -21,9 +20,6 @@ export type Database = {
   live: Record<string, LiveSession>;
   config: SiteConfig;
 };
-
-const DATA_DIR = path.join(process.cwd(), "data");
-const DATA_FILE = path.join(DATA_DIR, "db.json");
 
 function defaultConfig(): SiteConfig {
   return {
@@ -92,21 +88,22 @@ async function ensureSeed(db: Database): Promise<void> {
       role: "admin",
       banned: false,
       godMode: true,
+      favorites: [],
       createdAt: now,
       lastActiveAt: now,
     });
   }
-  // Migrate older users missing godMode
+  // Migrate older users missing godMode or favorites
   for (const u of db.users) {
     if (typeof u.godMode !== "boolean") u.godMode = false;
+    if (!Array.isArray(u.favorites)) u.favorites = [];
   }
 }
 
 async function loadFromDisk(): Promise<Database> {
   try {
-    await fs.mkdir(DATA_DIR, { recursive: true });
-    const raw = await fs.readFile(DATA_FILE, "utf8");
-    const parsed = JSON.parse(raw) as Database;
+    const parsed = await loadJSON<Database>("db");
+    if (!parsed) return emptyDb();
     const base = emptyDb();
     return {
       ...base,
@@ -125,8 +122,7 @@ async function loadFromDisk(): Promise<Database> {
 
 async function saveToDisk(db: Database): Promise<void> {
   try {
-    await fs.mkdir(DATA_DIR, { recursive: true });
-    await fs.writeFile(DATA_FILE, JSON.stringify(db, null, 2), "utf8");
+    await saveJSON("db", db);
   } catch {
     // On read-only serverless FS, memory still works for warm instances
   }
@@ -188,6 +184,7 @@ export async function createUser(input: {
     role: "user",
     banned: false,
     godMode: false,
+    favorites: [],
     createdAt: new Date().toISOString(),
     lastActiveAt: new Date().toISOString(),
   };
